@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buku Tamu Dea 💖</title>
+<style>
+*{box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+body{margin:0;background:linear-gradient(180deg,#ffe4ef 0%,#e0f2ff 100%);min-height:100vh;padding:20px}
+.card{max-width:480px;margin:0 auto;background:white;border-radius:24px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.1)}
+h1{text-align:center;color:#ff6fa5;margin:0;font-size:28px}
+p.sub{text-align:center;color:#7aa8d6;margin:6px 0 20px}
+input,textarea{width:100%;padding:13px;border:2px solid #ffd1e3;border-radius:14px;margin-bottom:12px;outline:none;font-size:15px}
+input:focus,textarea:focus{border-color:#a8d8ff}
+button{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(90deg,#ff8fb8,#7ec8ff);color:white;font-weight:bold;font-size:16px;cursor:pointer}
+.pesan{background:#fff5f8;border-left:4px solid #ffb3cd;padding:12px;border-radius:12px;margin-top:12px}
+.pesan b{color:#ff5c96}
+.pesan small{color:#8ab6e6}
+#count{text-align:center;margin:14px 0;color:#ff6fa5;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>💖 Buku Tamu Dea 💙</h1>
+<p class="sub">Tinggalin kesan & pesan kamu ya! 🎂<br>Random aja, bebas mau nulis apa!</p>
+<input id="nama" placeholder="Nama kamu...">
+<textarea id="pesan" rows="3" placeholder="Kesan & pesan kamu buat Dea..."></textarea>
+<button onclick="kirim()">Kirim Pesan 💌</button>
+<div id="count"></div>
+<div id="list"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA0PFNEuSLR_AZe9yNknCN0xg2GD2RLunE",
+  authDomain: "buku-tamu-dea.firebaseapp.com",
+  projectId: "buku-tamu-dea",
+  storageBucket: "buku-tamu-dea.firebasestorage.app",
+  messagingSenderId: "128066148998",
+  appId: "1:128066148998:web:f0ca73ccc86ea2e2f44f67"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.kirim = async () => {
+  const nama = document.getElementById('nama').value.trim();
+  const pesan = document.getElementById('pesan').value.trim();
+  if(!nama || !pesan) return alert('Isi nama & pesan dulu ya!');
+  await addDoc(collection(db, "tamu"), { nama, pesan, createdAt: serverTimestamp() });
+  document.getElementById('nama').value=''; document.getElementById('pesan').value='';
+  alert('Makasih udah isi! 💖');
+};
+
+const q = query(collection(db, "tamu"), orderBy("createdAt","desc"));
+onSnapshot(q, (snap)=>{
+  document.getElementById('count').innerText = `✨ ${snap.size} pesan masuk ✨`;
+  document.getElementById('list').innerHTML = snap.docs.map(d=>{
+    const x=d.data();
+    return `<div class="pesan"><b>${x.nama}</b><br>${x.pesan}<br><small>💙 buat Dea</small></div>`
+  }).join('');
+});
+</script>
+</body>
+</html>
